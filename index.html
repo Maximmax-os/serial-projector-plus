@@ -1,242 +1,128 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Serial Projector</title>
-    <meta
-      name="description"
-      content="A simple web application that shows last line of text got from serial port with a big font."
-    />
-    <link rel="icon" type="image/png" href="icons/icon-192.png" />
-    <link
-      rel="apple-touch-icon"
-      href="icons/apple-touch-icon.png"
-      sizes="180x180"
-    />
-    <link rel="mask-icon" href="icons/maskable-icon-512.png" color="#448aff" />
-    <meta name="theme-color" content="#f6871f" />
-    <link rel="stylesheet" href="./src/style.css" />
-  </head>
-  <body>
-    <main>
-      <div id="msg">🔌</div>
-    </main>
-
-    <div id="status">Disconnected</div>
-
-    <div id="controls">
-      <button id="settingsBtn" title="Connection">⛓️‍💥</button>
-      <button id="styleBtn" title="Look & Feel">🎨</button>
-      <button id="fullscreenBtn" title="Fullscreen">📺</button>
-      <button id="aboutBtn" title="About">❔</button>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-      <div class="modal-content">
-        <h2>Connection Settings</h2>
-        <label
-          >Baud rate:
-          <select
-            id="baudRate"
-            title="A positive, non-zero value indicating the baud rate at which serial communication should be established."
-          >
-            <option>9600</option>
-            <option>19200</option>
-            <option>38400</option>
-            <option>57600</option>
-            <option>115200</option>
-          </select>
-        </label>
-        <label
-          >Data bits:
-          <select
-            id="dataBits"
-            title="An integer value of 7 or 8 indicating the number of data bits per frame. If not passed, defaults to 8."
-          >
-            <option value="7">7</option>
-            <option value="8" selected>8</option>
-          </select>
-        </label>
-        <label
-          >Parity:
-          <select
-            id="parity"
-            title='The parity mode, either "none", "even", or "odd". The default value is "none".'
-          >
-            <option value="none" selected>None</option>
-            <option value="odd">Odd</option>
-            <option value="even">Even</option>
-          </select>
-        </label>
-        <label
-          >Stop bits:
-          <select
-            id="stopBits"
-            title="An integer value of 1 or 2 indicating the number of stop bits at the end of the frame."
-          >
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-          </select>
-        </label>
-        <label
-          >Encoding:
-          <select
-            id="encoding"
-            title="From which encoding to recode if it is not UTF-8."
-          >
-            <option value="default" selected>Default (UTF-8)</option>
-            <option value="utf-8">UTF-8</option>
-            <option value="x-espruino-mixed-utf8">
-              Espruino/IskraJS mixed UTF-8
-            </option>
-            <option value="utf-16be">UTF-16 Big Endian</option>
-            <option value="utf-16">UTF-16</option>
-            <option value="cp866">Code Page 866</option>
-            <option value="iso-8859-2">ISO-8859-2</option>
-            <option value="iso-8859-3">ISO-8859-3</option>
-            <option value="iso-8859-4">ISO-8859-4</option>
-            <option value="iso-8859-5">ISO-8859-5</option>
-            <option value="iso-8859-6">ISO-8859-6</option>
-            <option value="iso-8859-7">ISO-8859-7</option>
-            <option value="iso-8859-8">ISO-8859-8</option>
-            <option value="iso-8859-8-i">ISO-8859-8-i</option>
-            <option value="iso-8859-10">ISO-8859-10</option>
-            <option value="iso-8859-13">ISO-8859-13</option>
-            <option value="iso-8859-14">ISO-8859-14</option>
-            <option value="iso-8859-15">ISO-8859-15</option>
-            <option value="iso-8859-16">ISO-8859-16</option>
-            <option value="koi8-r">KOI8-R</option>
-            <option value="koi8-u">KOI8-U</option>
-            <option value="macintosh">Macintosh</option>
-            <option value="windows-874">Windows-874</option>
-            <option value="windows-1250">Windows-1250</option>
-            <option value="windows-1251">Windows-1251</option>
-            <option value="windows-1252">Windows-1252</option>
-            <option value="windows-1253">Windows-1253</option>
-            <option value="windows-1254">Windows-1254</option>
-            <option value="windows-1255">Windows-1255</option>
-            <option value="windows-1256">Windows-1256</option>
-            <option value="windows-1257">Windows-1257</option>
-            <option value="windows-1258">Windows-1258</option>
-            <option value="x-mac-cyrillic">Mac OS Cyrillic</option>
-            <option value="chinese">GBK</option>
-            <option value="gb18030">GB 18030</option>
-            <option value="big5">Big5</option>
-            <option value="euc-jp">euc-jp</option>
-            <option value="iso-2022-jp">ISO-2022-JP</option>
-            <option value="shift-jis">Shift JIS</option>
-            <option value="euc-kr">EUC-KR</option>
-          </select>
-        </label>
-
-        <h3>Signals</h3>
-        <div class="modal-content-inline">
-          <label
-            ><abbr title="Data Terminal Ready">DTR</abbr>:
-            <select
-              id="dtrSignal"
-              title='A boolean indicating whether to invoke the operating system to either assert (if true) or de-assert (if false) the "data terminal ready" or "DTR" signal on the serial port.'
-            >
-              <option value="" selected>Default</option>
-              <option value="true" selected>Yes</option>
-              <option value="false">No</option>
-            </select>
-          </label>
-          <label
-            ><abbr title="Request to Send">RTS</abbr>:
-            <select
-              id="rtsSignal"
-              title='A boolean indicating whether to invoke the operating system to either assert (if true) or de-assert (if false) the "request to send" or "RTS" signal on the serial port.'
-            >
-              <option value="" selected>Default</option>
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </label>
-          <label
-            ><code>break</code>:
-            <select
-              id="breakSignal"
-              title='A boolean indicating whether to invoke the operating system to either assert (if true) or de-assert (if false) the "break" signal on the serial port.'
-            >
-              <option value="" selected>Default</option>
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </label>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script src="jquery-2.1.4.min.js"></script>
+        <script src="underscore.js"></script>
+        <script src="backbone.js"></script>
+        <script src="main.js"></script>
+        <script src="connection.js"></script>
+        <script src="settings.js"></script>
+        <script src="about.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <div id="wrap">
+            <h1>Hello, world!</h1>
         </div>
 
-        <button id="connectBtn" title="Connect and turn autoconnection on">
-          Connect
-        </button>
-        <button
-          id="disconnectBtn"
-          title="Disconnect and turn autoconnection off"
-        >
-          Disconnect
-        </button>
-        <button id="settingsClose">Close</button>
-      </div>
-    </div>
+        <aside id="menu">
+            <div class="btn btn-fullscreen" title="Fullscreen [F11 or F]"></div>
+            <div class="btn btn-connection" title="Connection [C]"></div>
+            <div class="btn btn-settings" title="Settings [F10]"></div>
+            <div class="btn btn-about" title="About [F1]"></div>
+        </aside>
 
-    <!-- Style Modal -->
-    <div class="modal" id="styleModal">
-      <div class="modal-content">
-        <h2>Style Settings</h2>
-        <label
-          >Background: <input type="color" id="bgColor" value="#f6871f"
-        /></label>
-        <label
-          >Text color: <input type="color" id="textColor" value="#ffffff"
-        /></label>
-        <label
-          >Font family:
-          <select id="fontFamily">
-            <option value="sans-serif">Sans-serif</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
-          </select>
-        </label>
-        <label
-          >Font size:
-          <input
-            type="number"
-            id="fontSize"
-            min="1"
-            max="100"
-            step="1"
-            value="10"
-          />
-        </label>
-        <button id="styleClose">Close</button>
-      </div>
-    </div>
+        <aside id="connection" class="popup">
+            <table class="form">
+                <tbody>
+                    <tr>
+                        <th><label for="port">Port:</label></th>
+                        <td>
+                            <select id="port" name="port">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="bitrate">Bit Rate:</label></th>
+                        <td>
+                            <select id="bitrate" name="bitrate">
+                                <option value="9600" selected>9600</option>
+                                <option value="19200">19200</option>
+                                <option value="38400">38400</option>
+                                <option value="57600">57600</option>
+                                <option value="115200">115200</option>
+                            </select>
+                            baud
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="dataBits">Data Bits:</label></th>
+                        <td>
+                            <select id="dataBits" name="dataBits">
+                                <option value="seven">Seven</option>
+                                <option value="eight" selected>Eight</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="parityBit">Parity Bit:</label></th>
+                        <td>
+                            <select id="parityBit" name="parityBit">
+                                <option value="no" selected>No</option>
+                                <option value="odd">Odd</option>
+                                <option value="even">Even</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="stopBits">Stop Bits:</label></th>
+                        <td>
+                            <select id="stopBits" name="stopBits">
+                                <option value="one" selected>One</option>
+                                <option value="two">Two</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>
+                            <button id="connect" title="Turn autoconnection on [Space]">Connect</button>
+                            <button id="stop-connection" title="Disconnect and turn autoconnection off [Space]">Stop</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </aside>
 
-    <!-- About Modal -->
-    <div class="modal" id="aboutModal">
-      <div class="modal-content">
-        <p>
-          Serial Projector is made by
-          <a href="http://amperka.ru" target="_blank">Amperka LLC</a>. From
-          Russia with Love :-*
-        </p>
-        <p>
-          Application is distributed as is without any warranties on terms of
-          MIT License.
-          <a href="https://github.com/amperka/serial-projector" target="_blank"
-            >Source code</a
-          >
-          is available on GitHub.
-        </p>
-        <button id="aboutClose">Close</button>
-      </div>
-    </div>
+        <aside id="settings" class="popup">
+            <table class="form">
+                <tbody>
+                    <tr>
+                        <th><label for="font-size">Font Size:</label></th>
+                        <td><input  id="font-size" type="number" name="font-size" min="1" max="100" value="10"></td>
+                        <td>vw</td>
+                    </tr>
+                    <tr>
+                        <th><label for="text-color">Text Color:</label></th>
+                        <td><input  id="text-color" type="color" name="text-color" value="#ffffff"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th><label for="bg-color">BG Color:</label></th>
+                        <td><input  id="bg-color" type="color" name="bg-color" value="#00979c"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td><button id="apply-settings">Apply</button></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </aside>
 
-    <script type="module">
-      import { init } from "./src/main.js";
-      init();
-    </script>
-  </body>
+        <aside id="about" class="popup">
+            <p>
+                Serial Projector is made by <a href="http://amperka.ru" target="_blank">Amperka LLC</a>. From Russia with Love :-*
+            </p>
+            <p>
+                Icons by <a href="http://fortawesome.github.io/Font-Awesome/" target="_blank">Font Awesome</a>.
+            </p>
+            <p>
+                Application is distributed as is without any warranties on terms of MIT License.
+                <a href="https://github.com/amperka/serial-projector" target="_blank">Source code</a> is available on GitHub.
+            </p>
+        </aside>
+    </body>
 </html>
